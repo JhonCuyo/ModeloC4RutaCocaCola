@@ -36,3 +36,12 @@ Verificado con Structurizr CLI v2025.11.09 (validación sin errores) y PlantUML.
 - Hacer la revisión cruzada real con otro grupo y agregar sus hallazgos a `revision-cruzada.md`.
 - Ensayar `explicacion.md` con sus propias palabras (la versión final es del vocero).
 - Subir el enlace al *commit* final al Aula Virtual.
+
+## Integrantes Roles
+
+| Integrante | Rol en la Parte A (Pasos 1 al 6) | Rol en la Parte B (Pasos 7 al 10 — Rotación) |
+| :--- | :--- | :--- |
+| **Diego** | **Modelador** (Inventario C4 y decisiones de diseño) | **Vocero** (Consolidación de la bitácora de IA) |
+| **Jhon** | **Redactor del DSL** (Contexto, contenedores y vista dinámica) | **Revisor** (Verificación de despliegue y reto sin conexión) |
+| **Wilber** | **Revisor** (Auditoría C4 y revisión cruzada) | **Redactor del DSL** (Despliegue en producción y exportación) |
+| **Jaime** | **Vocero** (Explicación no técnica y registro inicial) | **Modelador** (Análisis del reto offline y redacción del ADR-002) |
