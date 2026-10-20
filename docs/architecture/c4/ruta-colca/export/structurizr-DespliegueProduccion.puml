@@ -1,0 +1,65 @@
+@startuml
+title <size:24>Despliegue - RutaColca en producción</size>\n<size:24>Despliegue de RutaColca en producción</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Deployment>
+
+AddElementTag("Container,Base de datos,Reto", $bgColor="#b45f06", $borderColor="#7d4204", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="dashed")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Base de datos", $bgColor="#0e7d73", $borderColor="#095750", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#0e7d73", $borderColor="#095750", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#444444", $lineColor="#444444", $lineStyle = DashedLine())
+AddRelTag("Reto", $textColor="#b45f06", $lineColor="#b45f06", $lineStyle = DashedLine())
+
+Deployment_Node(Produccion.Celulardelturista, "Celular del turista", $type="Smartphone", $descr="Android o iOS", $tags="Element", $link="") {
+  Deployment_Node(Produccion.Celulardelturista.Navegadorweb, "Navegador web", $type="Chrome o Safari", $descr="Ejecuta la SPA del turista", $tags="Element", $link="") {
+    Container(Produccion.Celulardelturista.Navegadorweb.Webdelturista_1, "Web del turista", $techn="React (SPA)", $descr="Permite buscar tours, elegir una salida, registrar el boleto turístico y pagar. SPA = aplicación de una sola página.", $tags="Container", $link="")
+  }
+
+}
+
+Deployment_Node(Produccion.Tabletdelaagencia, "Tablet de la agencia", $type="Tablet", $descr="Android o iPadOS", $tags="Element", $link="") {
+  Deployment_Node(Produccion.Tabletdelaagencia.Navegadorweb, "Navegador web", $type="Chrome o Safari", $descr="Ejecuta la PWA y guarda datos locales", $tags="Element", $link="") {
+    Container(Produccion.Tabletdelaagencia.Navegadorweb.Portaldeagencias_1, "Portal de agencias", $techn="React (PWA)", $descr="Permite a las agencias publicar tours, fechas y cupos; al administrador aprobar agencias y ver ventas. PWA = aplicación web instalable.", $tags="Container", $link="")
+    ContainerDb(Produccion.Tabletdelaagencia.Navegadorweb.Almacénlocalsinconexión_1, "Almacén local sin conexión", $techn="IndexedDB (navegador)", $descr="Guarda en la tablet las reservas presenciales hasta que vuelva internet.", $tags="Container,Base de datos,Reto", $link="")
+  }
+
+}
+
+Deployment_Node(Produccion.Proveedorcloud, "Proveedor cloud", $type="Cloud", $descr="Región cercana a Perú", $tags="Element", $link="") {
+  Deployment_Node(Produccion.Proveedorcloud.Balanceadordecarga, "Balanceador de carga", $type="Balanceador gestionado", $descr="Recibe el tráfico HTTPS y lo reparte entre las réplicas de la API", $tags="Element", $link="")
+  Deployment_Node(Produccion.Proveedorcloud.VMdeaplicación, "VM de aplicación", $type="Máquina virtual", $descr="Ubuntu Linux; 2 réplicas para temporada alta", $tags="Element", $link="") {
+    Deployment_Node(Produccion.Proveedorcloud.VMdeaplicación.Docker, "Docker", $type="Docker Engine", $descr="Ejecuta la imagen de la API", $tags="Element", $link="") {
+      Container(Produccion.Proveedorcloud.VMdeaplicación.Docker.APIdeRutaColca_1, "API de RutaColca", $techn="Java 21, Spring Boot", $descr="Concentra las reglas de negocio: tours, cupos, reservas, validación del boleto, cobro y avisos.", $tags="Container", $link="")
+    }
+
+  }
+
+  Deployment_Node(Produccion.Proveedorcloud.PostgreSQLgestionado, "PostgreSQL gestionado", $type="PostgreSQL 16", $descr="Servicio de base de datos administrado por el proveedor", $tags="Element", $link="") {
+    ContainerDb(Produccion.Proveedorcloud.PostgreSQLgestionado.Basededatos_1, "Base de datos", $techn="PostgreSQL 16", $descr="Guarda agencias, tours, salidas, cupos y reservas. No guarda datos de tarjetas.", $tags="Container,Base de datos", $link="")
+  }
+
+}
+
+Rel(Produccion.Tabletdelaagencia.Navegadorweb.Portaldeagencias_1, Produccion.Tabletdelaagencia.Navegadorweb.Almacénlocalsinconexión_1, "Guarda reservas pendientes en", $techn="IndexedDB API", $tags="Reto", $link="")
+Rel(Produccion.Proveedorcloud.VMdeaplicación.Docker.APIdeRutaColca_1, Produccion.Proveedorcloud.PostgreSQLgestionado.Basededatos_1, "Lee y guarda datos en", $techn="JDBC", $tags="Relationship", $link="")
+Rel(Produccion.Celulardelturista.Navegadorweb.Webdelturista_1, Produccion.Proveedorcloud.Balanceadordecarga, "Envía peticiones a", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Produccion.Tabletdelaagencia.Navegadorweb.Portaldeagencias_1, Produccion.Proveedorcloud.Balanceadordecarga, "Envía peticiones a", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Produccion.Proveedorcloud.Balanceadordecarga, Produccion.Proveedorcloud.VMdeaplicación.Docker.APIdeRutaColca_1, "Reparte peticiones a", $techn="HTTP", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

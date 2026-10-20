@@ -1,0 +1,60 @@
+@startuml
+title <size:24>Contenedores - RutaColca con reservas sin conexión (ADR-002)</size>\n<size:24>Contenedores con trabajo sin conexión en Chivay (HU-05, ADR-002)</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Software System,Externo", $bgColor="#8c8c8c", $borderColor="#626262", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Base de datos,Reto", $bgColor="#b45f06", $borderColor="#7d4204", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="dashed")
+AddElementTag("Container,Base de datos", $bgColor="#0e7d73", $borderColor="#095750", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Person", $bgColor="#0b3d62", $borderColor="#072a44", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#0e7d73", $borderColor="#095750", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#444444", $lineColor="#444444", $lineStyle = DashedLine())
+AddRelTag("Reto", $textColor="#b45f06", $lineColor="#b45f06", $lineStyle = DashedLine())
+
+AddBoundaryTag("Software System", $bgColor="#ffffff", $borderColor="#124161", $fontColor="#124161", $shadowing="", $borderStyle="solid")
+
+Person(Turista, "Turista", $descr="Visitante que busca tours del valle del Colca, reserva una salida y paga en línea.", $tags="Person", $link="")
+Person(Operadordeagencia, "Operador de agencia", $descr="Personal de una agencia de Arequipa o Chivay que publica tours, fechas y cupos, y registra reservas.", $tags="Person", $link="")
+Person(Guíadeturismo, "Guía de turismo", $descr="Conduce al grupo en la salida; recibe el itinerario y la lista del grupo por WhatsApp, no usa la plataforma.", $tags="Person", $link="")
+Person(Administrador, "Administrador", $descr="Aprueba a las agencias que se registran y revisa las ventas por agencia y por mes.", $tags="Person", $link="")
+System(Pasareladepagos, "Pasarela de pagos", $descr="Servicio externo que procesa pagos con tarjeta o billetera móvil; guarda los datos de tarjeta.", $tags="Software System,Externo", $link="")
+System(WhatsAppBusiness, "WhatsApp Business", $descr="Servicio externo de mensajería que entrega mensajes a los guías.", $tags="Software System,Externo", $link="")
+System(SistemadeAUTOCOLCA, "Sistema de AUTOCOLCA", $descr="Sistema externo que emite y valida el boleto turístico del Colca (supuesto didáctico).", $tags="Software System,Externo", $link="")
+
+System_Boundary("RutaColca_boundary", "RutaColca", $tags="Software System") {
+  ContainerDb(RutaColca.Almacénlocalsinconexión, "Almacén local sin conexión", $techn="IndexedDB (navegador)", $descr="Guarda en la tablet las reservas presenciales hasta que vuelva internet.", $tags="Container,Base de datos,Reto", $link="")
+  Container(RutaColca.Webdelturista, "Web del turista", $techn="React (SPA)", $descr="Permite buscar tours, elegir una salida, registrar el boleto turístico y pagar. SPA = aplicación de una sola página.", $tags="Container", $link="")
+  Container(RutaColca.Portaldeagencias, "Portal de agencias", $techn="React (PWA)", $descr="Permite a las agencias publicar tours, fechas y cupos; al administrador aprobar agencias y ver ventas. PWA = aplicación web instalable.", $tags="Container", $link="")
+  Container(RutaColca.APIdeRutaColca, "API de RutaColca", $techn="Java 21, Spring Boot", $descr="Concentra las reglas de negocio: tours, cupos, reservas, validación del boleto, cobro y avisos.", $tags="Container", $link="")
+  ContainerDb(RutaColca.Basededatos, "Base de datos", $techn="PostgreSQL 16", $descr="Guarda agencias, tours, salidas, cupos y reservas. No guarda datos de tarjetas.", $tags="Container,Base de datos", $link="")
+}
+
+Rel(Turista, RutaColca.Webdelturista, "Busca tours y reserva desde", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Operadordeagencia, RutaColca.Portaldeagencias, "Publica tours y registra reservas en", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Administrador, RutaColca.Portaldeagencias, "Aprueba agencias y consulta ventas en", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca.Webdelturista, RutaColca.APIdeRutaColca, "Solicita búsquedas, reservas y pagos a", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca.Portaldeagencias, RutaColca.APIdeRutaColca, "Envía tours, cupos y reservas a", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca.APIdeRutaColca, RutaColca.Basededatos, "Lee y guarda datos en", $techn="JDBC", $tags="Relationship", $link="")
+Rel(RutaColca.APIdeRutaColca, SistemadeAUTOCOLCA, "Valida el boleto turístico en", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca.APIdeRutaColca, Pasareladepagos, "Cobra las reservas en", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca.APIdeRutaColca, WhatsAppBusiness, "Envía itinerarios y listas de grupo mediante", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(WhatsAppBusiness, Guíadeturismo, "Entrega el itinerario y la lista del grupo a", $techn="WhatsApp", $tags="Relationship", $link="")
+Rel(RutaColca.Portaldeagencias, RutaColca.Almacénlocalsinconexión, "Guarda reservas pendientes en", $techn="IndexedDB API", $tags="Reto", $link="")
+Rel(RutaColca.Portaldeagencias, RutaColca.APIdeRutaColca, "Sincroniza reservas pendientes con", $techn="JSON/HTTPS diferido, con clave de idempotencia", $tags="Reto", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

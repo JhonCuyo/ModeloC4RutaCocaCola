@@ -1,0 +1,42 @@
+@startuml
+title <size:24>Contexto - RutaColca: quién lo usa y con qué servicios se conecta</size>\n<size:24>Diagrama de contexto de RutaColca</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+
+AddElementTag("Software System,Externo", $bgColor="#8c8c8c", $borderColor="#626262", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Software System", $bgColor="#1b5e8b", $borderColor="#124161", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Person", $bgColor="#0b3d62", $borderColor="#072a44", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#444444", $lineColor="#444444", $lineStyle = DashedLine())
+
+Person(Turista, "Turista", $descr="Visitante que busca tours del valle del Colca, reserva una salida y paga en línea.", $tags="Person", $link="")
+System(Pasareladepagos, "Pasarela de pagos", $descr="Servicio externo que procesa pagos con tarjeta o billetera móvil; guarda los datos de tarjeta.", $tags="Software System,Externo", $link="")
+System(WhatsAppBusiness, "WhatsApp Business", $descr="Servicio externo de mensajería que entrega mensajes a los guías.", $tags="Software System,Externo", $link="")
+System(SistemadeAUTOCOLCA, "Sistema de AUTOCOLCA", $descr="Sistema externo que emite y valida el boleto turístico del Colca (supuesto didáctico).", $tags="Software System,Externo", $link="")
+Person(Operadordeagencia, "Operador de agencia", $descr="Personal de una agencia de Arequipa o Chivay que publica tours, fechas y cupos, y registra reservas.", $tags="Person", $link="")
+Person(Guíadeturismo, "Guía de turismo", $descr="Conduce al grupo en la salida; recibe el itinerario y la lista del grupo por WhatsApp, no usa la plataforma.", $tags="Person", $link="")
+Person(Administrador, "Administrador", $descr="Aprueba a las agencias que se registran y revisa las ventas por agencia y por mes.", $tags="Person", $link="")
+System(RutaColca, "RutaColca", $descr="Plataforma del consorcio de agencias para publicar tours, reservar salidas, cobrar en línea y avisar a los guías.", $tags="Software System", $link="")
+
+Rel(Turista, RutaColca, "Busca tours y reserva desde", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Operadordeagencia, RutaColca, "Publica tours y registra reservas en", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(Administrador, RutaColca, "Aprueba agencias y consulta ventas en", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca, SistemadeAUTOCOLCA, "Valida el boleto turístico en", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca, Pasareladepagos, "Cobra las reservas en", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(RutaColca, WhatsAppBusiness, "Envía itinerarios y listas de grupo mediante", $techn="JSON/HTTPS", $tags="Relationship", $link="")
+Rel(WhatsAppBusiness, Guíadeturismo, "Entrega el itinerario y la lista del grupo a", $techn="WhatsApp", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

@@ -1,0 +1,16 @@
+# E7 · Bitácora de uso de IA (Paso 10)
+
+Asistente utilizado: **Claude** (Anthropic). Regla del equipo: *la IA propone, el equipo decide y verifica*. Todo resultado se contrastó con la lista del Anexo A y con la CLI (`structurizr.sh validate`). No se pegaron datos personales, credenciales ni datos reales de agencias o turistas.
+
+> **Para el grupo:** completen la columna *Responsable* con el nombre del integrante que verificó cada prompt y ajusten la fecha si trabajaron otro día.
+
+| N.º | Fecha | Prompt | Qué se aceptó | Qué se rechazó o corrigió | Responsable |
+|-----|-------|--------|---------------|---------------------------|-------------|
+| 1 | 2026-10-20 | P1 · Revisar el inventario | Clasificación de 4 personas, 1 sistema propio, 3 externos y 4 contenedores (más el almacén local del reto). | Se discutió el guía: se mantuvo como **persona** (recibe información por WhatsApp). Docker se dejó fuera de los contenedores. | _(nombre)_ |
+| 2 | 2026-10-20 | P2 · Contexto en Structurizr DSL | Personas, sistema como una sola caja, tres externos con etiqueta «Externo», relaciones con verbo + preposición, sin la palabra «usa». | El guía no aparecía en la vista (solo se conecta con WhatsApp): se agregó `include guia`. Se añadió `c4plantuml.tags` para conservar el gris de los externos al exportar. | _(nombre)_ |
+| 3 | 2026-10-20 | P3 · Contenedores a partir del ADR | Web (React SPA), Portal (React PWA), API (Java 21, Spring Boot), BD (PostgreSQL 16); protocolos JSON/HTTPS y JDBC; relaciones trasladadas al contenedor emisor. | Rechazado todo lo ajeno al ADR-001 (Kafka, Redis, Kubernetes, apps nativas). Las relaciones sistema→externo se movieron a la API. | _(nombre)_ |
+| 4 | 2026-10-20 | P4 · Vista dinámica | 8 pasos, todos sobre relaciones existentes. Decisión: **validar el boleto antes de cobrar**. | Se corrigió la numeración duplicada (se quitó la manual). Se agregó el paso «verifica y retiene el cupo» antes de validar, para no vender un cupo agotado. | _(nombre)_ |
+| 5 | 2026-10-20 | P5 · Auditor C4 | 5 hallazgos válidos (ver `revision-cruzada.md`). | Se descartó, por ahora, modelar Web → Pasarela (no está en el caso). | _(nombre)_ |
+| 6 | 2026-10-20 | P6 · Borrador de explicación | Estructura y ejemplos cotidianos (cupos, guía, pago). | Se eliminaron siglas y se acortó a ≈120 palabras. El vocero debe reescribirla con sus palabras. | _(nombre)_ |
+| 7 | 2026-10-20 | P7 · Despliegue por entorno | `deploymentEnvironment "Produccion"`: celular, tablet, nube con balanceador, 2 VM con Docker y PostgreSQL gestionado; solo `containerInstance`. | Relaciones entre nodos declaradas **fuera** del bloque del entorno. Se ocultaron las flechas directas web→API derivadas para que el tráfico pase por el balanceador. | _(nombre)_ |
+| 8 | 2026-10-20 | P8 · Impacto del reto | Preguntas y elementos afectados que dieron forma al ADR-002 (ver `adr/ADR-002-trabajo-sin-conexion.md`). | Se rechazó resolver con una cola de mensajería: contradice el ADR-001 y el plazo de 1 mes. | _(nombre)_ |
