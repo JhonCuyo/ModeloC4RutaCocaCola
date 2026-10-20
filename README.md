@@ -30,13 +30,6 @@ cd docs/architecture/c4/ruta-colca/export && java -jar plantuml.jar -tpng -o img
 
 Verificado con Structurizr CLI v2025.11.09 (validación sin errores) y PlantUML.
 
-## Pendiente para el grupo
-
-- Completar los nombres en la columna *Responsable* de `bitacora-ia.md`.
-- Hacer la revisión cruzada real con otro grupo y agregar sus hallazgos a `revision-cruzada.md`.
-- Ensayar `explicacion.md` con sus propias palabras (la versión final es del vocero).
-- Subir el enlace al *commit* final al Aula Virtual.
-
 ## Integrantes Roles
 
 | Integrante | Rol en la Parte A (Pasos 1 al 6) | Rol en la Parte B (Pasos 7 al 10 — Rotación) |
